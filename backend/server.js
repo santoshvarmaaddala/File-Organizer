@@ -134,23 +134,6 @@ app.get('/download/:folder', (req, res) => {
     archive.finalize();
 });
 
-// Endpoint to download all folders as a single ZIP
-app.get('/download/all', (req, res) => {
-    const zipPath = path.join(uploadsDir, 'all_folders.zip');
-    const archive = archiver('zip', { zlib: { level: 9 } });
-
-    res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', 'attachment; filename=all_folders.zip');
-
-    archive.pipe(res);
-    Object.values(subDirectories).forEach((subDir) => {
-        const folderPath = path.join(uploadsDir, subDir);
-        if (fs.existsSync(folderPath)) {
-            archive.directory(folderPath, subDir);
-        }
-    });
-    archive.finalize();
-});
 
 // Start the server
 app.listen(port, () => {
