@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File and Folder Upload Form</title>
+    <title>File Upload</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,75 +39,45 @@
         button:hover {
             background-color: #0056b3;
         }
-        .drag-area {
-            margin: 20px 0;
-            padding: 20px;
-            border: 2px dashed #007BFF;
-            border-radius: 5px;
-            text-align: center;
-            color: #007BFF;
-            background-color: #f0f8ff;
-        }
-        .drag-area.dragover {
-            background-color: #e6f7ff;
-        }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h2>Upload Files or Folders</h2>
-        <form id="uploadForm">
+        <h2>Upload Files</h2>
+        <form id="uploadForm" enctype="multipart/form-data" action="/organizer" method="POST">
             <label for="fileInput">Select Files:</label>
             <input type="file" id="fileInput" name="files" multiple>
-
-            <label for="folderInput">Select Folders:</label>
-            <input type="file" id="folderInput" webkitdirectory directory>
-
-            <div class="drag-area" id="dragArea">
-                Drag & Drop Files or Folders Here
-            </div>
-
-            <button type="button" onclick="handleUpload()">Upload</button>
+            <button type="button" onclick="uploadFiles()">Upload</button>
         </form>
     </div>
 
     <script>
-        const dragArea = document.getElementById('dragArea');
-        const filesList = [];
-
-        dragArea.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            dragArea.classList.add('dragover');
-        });
-
-        dragArea.addEventListener('dragleave', () => {
-            dragArea.classList.remove('dragover');
-        });
-
-        dragArea.addEventListener('drop', (event) => {
-            event.preventDefault();
-            dragArea.classList.remove('dragover');
-
-            const files = event.dataTransfer.files;
-
-            if (files.length > 0) {
-                for (let i = 0; i < files.length; i++) {
-                    filesList.push(files[i]);
+        function uploadFiles() {
+            const form = document.getElementById('uploadForm');
+            const formData = new FormData(form); // Collect the form data
+        
+            fetch('http://localhost:3000/organizer', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
                 }
-                console.log('Dropped Files:', filesList);
-                alert(`You dropped ${files.length} file(s) or folder(s).`);
-            }
-        });
-
-        function handleUpload() {
-            if (filesList.length === 0) {
-                alert('Please select or drop files or folders to upload.');
-                return;
-            }
-
-            console.log('Files to upload:', filesList);
-            alert('Files and/or folders have been uploaded successfully!');
+                throw new Error('Upload failed');
+            })
+            .then(data => {
+                console.log('Server Response:', data);
+                alert('Files uploaded successfully!');
+                // Redirect to /organizer
+                window.location.href = '/organizer';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to upload files.');
+            });
         }
+        
     </script>
 </body>
 </html>
